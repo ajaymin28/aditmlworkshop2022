@@ -1,0 +1,186 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login</title>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.5.1.min.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/my_modificstions.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style-responsive.css') }}"> 
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery.gritter.css') }}" />
+	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.gritter.js') }}"></script>
+	<!-- <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}"> -->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+	<meta name="viewport" content="width=device-width">
+
+	<style type="text/css">
+		
+
+		.gritter-item-wrapper {
+			position:relative;
+			margin:0 0 10px 0;
+			background:url("{{ url_for('static', filename='images/ie-spacer.gif') }}"); /* ie7/8 fix */ 
+			
+		}
+		.gritter-top {
+			background:url("{{ url_for('static', filename='images/gritter.png') }}") no-repeat left -30px;
+			height:10px;
+		}
+
+		.gritter-bottom {
+			background:url("{{ url_for('static', filename='images/gritter.png') }}") no-repeat left bottom;
+			height:8px;
+			margin:0;
+		}
+
+		.gritter-item {
+			display:block;
+			background:url("{{ url_for('static', filename='images/gritter.png') }}") no-repeat left -40px;
+
+			color:#eee;
+			padding:2px 11px 8px 11px;
+			font-size: 11px;
+			font-family:verdana;
+		}
+
+		.gritter-close {
+			display:none;
+			position:absolute;
+			top:5px;
+			left:3px;
+			background:url("{{ url_for('static', filename='images/gritter.png') }}") no-repeat left top;
+			cursor:pointer;
+			width:30px;
+			height:30px;
+			text-indent:-9999em;
+		}
+
+		.gritter-light .gritter-item,
+		.gritter-light .gritter-bottom,
+		.gritter-light .gritter-top,
+		.gritter-light .gritter-close {
+		    background-image: url("{{ url_for('static', filename='images/gritter-light.png') }}");
+		    color: #222;
+		}
+
+
+
+	</style>
+
+</head>
+<body>
+
+
+	<div id="login-page">
+		<div class="container">
+			<div class="form-login">
+				<h2 class="form-login-heading">Login</h2>
+				<div class="login-wrap">
+					<p>
+						<input type="text" id="username" class="form-control" placeholder="email" autofocus required autocomplete="off">
+						<br>
+		                <input type="password" id="password" class="form-control" placeholder="password" required>
+		            </p>
+					<center>
+						<div style="display: none">
+						<div class="form-check-inline">
+						<label class="form-check-label">
+						  <input type="radio" class="form-check-input" name="typeofuser" value="admin">Admin
+						</label>
+					  </div>
+						
+						  <div class="form-check-inline">
+							<label class="form-check-label">
+							  <input type="radio" class="form-check-input" name="typeofuser" value="operator" checked="true">Operator
+							</label>
+						  </div>
+						</div>
+					</center>
+		            <p>&nbsp; </p>
+		            <button class="btn btn-info btn-block" id="loginBtn" type="button">SIGN IN</button>
+		            <hr>
+		            <center><h5>Model Inference</h5></center>
+		        </div>
+	             
+			</div>	  	
+		  	
+		</div>
+	</div>
+
+<script type="text/javascript">
+	
+function addGritter(title_m,message){
+	$.gritter.add({
+		title: title_m,
+		text: message,
+		sticky: false,
+		class_name: 'gritter-light'
+	});
+}
+
+$(document).ready(function(){
+
+	$.extend($.gritter.options, { 
+	    position: 'top-right'
+	});
+
+
+	$("#loginBtn").click(function(){
+
+		var username =  $("#username").val();
+		var password = $("#password").val();
+		if(username!=""){
+			if(password!==""){
+				if(typeofuser!=""){
+
+					$("#loginBtn").html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`);
+
+					$.post({
+						  url: "/login",
+						  data: {
+						    "username" : username,
+						    "password" : password,
+						  },
+						  success: function( result ) {
+						  	$("#loginBtn").html("SIGN IN");
+						    if(result.login_status==true){
+						    	if(!result.default_password_changed){
+						    		window.location = "/change_default_password";
+						    	}else{
+									window.location = result.route;
+						    	}
+						    }else{
+						    	addGritter("ERROR", result.error_msg);
+						    }
+						  },
+						  error: function (jqXHR, exception) {
+						  	addGritter("ERROR", exception);
+						  	$("#loginBtn").html("SIGN IN");
+						  }
+					});
+				}else{
+
+				}
+			}else{
+				addGritter("ERROR", "please add password");
+			}
+		}else{
+			addGritter("ERROR", "please add username");
+		}
+
+	});
+
+
+
+
+});
+
+
+</script>
+
+</body>
+</html>
